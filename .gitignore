@@ -1,0 +1,35 @@
+# Backend (Java/Spring Boot)
+backend/target/
+backend/.mvn/
+backend/mvnw
+backend/mvnw.cmd
+backend/.env
+backend/application-local.properties
+
+# Frontend
+frontend/node_modules/
+frontend/.env
+frontend/dist/
+
+# Database
+*.db
+*.sqlite
+
+# IDE files
+.idea/
+.vscode/
+*.iml
+*.iws
+*.ipr
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Sensitive information
+application-secrets.properties
+.env
