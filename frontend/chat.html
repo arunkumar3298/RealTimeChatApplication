@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arun Chat</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'ig-blue': '#0095f6',
+                        'ig-light-blue': '#4db5f7',
+                        'ig-gray': '#8e8e8e',
+                        'ig-border': '#dbdbdb',
+                        'ig-bg': '#fafafa'
+                    },
+                    fontFamily: {
+                        'instagram': ['-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-white font-instagram h-screen flex">
+    
+    <!-- Left Sidebar - Friends & Search -->
+    <div class="w-80 border-r border-ig-border bg-white flex flex-col">
+        <!-- Header -->
+        <div class="p-4 border-b border-ig-border">
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-gradient-to-r from-purple-600 to-pink-500 rounded-full flex items-center justify-center">
+                        <i class="fas fa-comments text-white"></i>
+                    </div>
+                    <div>
+                        <h1 class="font-bold text-lg" id="currentUserName">Arun Chat</h1>
+                        <p class="text-ig-gray text-sm" id="currentUserEmail"></p>
+                    </div>
+                </div>
+                
+                <!-- Action Buttons -->
+                <div class="flex items-center space-x-2">
+                    <!-- Create Group Button -->
+                    <button id="createGroupBtn" class="relative p-2 rounded-full hover:bg-ig-bg transition duration-200" title="Create Group">
+                        <i class="fas fa-users text-ig-gray text-lg"></i>
+                    </button>
+                    
+                    <!-- Friend Requests Button -->
+                    <button id="friendRequestsBtn" class="relative p-2 rounded-full hover:bg-ig-bg transition duration-200" title="Friend Requests">
+                        <i class="fas fa-user-friends text-ig-gray text-lg"></i>
+                        <span id="requestBadge" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 items-center justify-center hidden">0</span>
+                    </button>
+                    
+                    <!-- Menu Button -->
+                    <div class="relative">
+                        <button id="menuBtn" class="p-2 rounded-full hover:bg-ig-bg transition duration-200">
+                            <i class="fas fa-ellipsis-h text-ig-gray text-lg"></i>
+                        </button>
+                        
+                        <!-- Dropdown Menu -->
+                        <div id="menuDropdown" class="absolute right-0 mt-2 w-48 bg-white border border-ig-border rounded-lg shadow-lg hidden z-10">
+                            <button onclick="showProfile()" class="w-full text-left px-4 py-2 hover:bg-ig-bg">
+                                <i class="fas fa-user mr-2"></i> Profile
+                            </button>
+                            <button onclick="showSettings()" class="w-full text-left px-4 py-2 hover:bg-ig-bg">
+                                <i class="fas fa-cog mr-2"></i> Settings
+                            </button>
+                            <hr class="border-ig-border">
+                            <button onclick="logout()" class="w-full text-left px-4 py-2 hover:bg-ig-bg text-red-500">
+                                <i class="fas fa-sign-out-alt mr-2"></i> Log out
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Search Bar -->
+            <div class="relative">
+                <input 
+                    type="text" 
+                    id="searchInput"
+                    placeholder="Search people..."
+                    class="w-full pl-10 pr-4 py-2 bg-ig-bg border border-ig-border rounded-full text-sm focus:outline-none focus:border-ig-blue"
+                >
+                <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-ig-gray"></i>
+                <button id="clearSearch" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-ig-gray hover:text-gray-800 hidden">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Search Results / Friends List -->
+        <div class="flex-1 overflow-y-auto">
+            <!-- Search Results Section -->
+            <div id="searchResults" class="hidden">
+                <div class="p-4 border-b border-ig-border">
+                    <h3 class="font-semibold text-sm text-ig-gray uppercase">Search Results</h3>
+                </div>
+                <div id="searchList" class="space-y-1">
+                    <!-- Dynamic search results -->
+                </div>
+            </div>
+            
+            <!-- Friends List Section -->
+            <div id="friendsSection">
+                <div class="p-4 border-b border-ig-border">
+                    <h3 class="font-semibold text-sm text-ig-gray uppercase">Messages</h3>
+                </div>
+                <div id="friendsList" class="space-y-1">
+                    <div class="p-4 text-center text-ig-gray">
+                        <i class="fas fa-comments text-4xl mb-3 opacity-50"></i>
+                        <p class="text-sm">Search for people to start chatting</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Main Chat Area -->
+    <div class="flex-1 flex flex-col">
+        <!-- Chat Header -->
+        <div id="chatHeader" class="p-4 border-b border-ig-border bg-white hidden">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div id="chatUserAvatar" class="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-semibold">
+                        A
+                    </div>
+                    <div>
+                        <h3 id="chatUserName" class="font-semibold">Select a chat</h3>
+                        <p id="chatUserStatus" class="text-ig-gray text-sm hidden">
+                            <span class="inline-block w-2 h-2 bg-green-500 rounded-full mr-1"></span>
+                            Online
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="flex items-center space-x-2">
+                    <button class="p-2 rounded-full hover:bg-ig-bg transition duration-200" title="Voice call">
+                        <i class="fas fa-phone text-ig-gray"></i>
+                    </button>
+                    <button class="p-2 rounded-full hover:bg-ig-bg transition duration-200" title="Video call">
+                        <i class="fas fa-video text-ig-gray"></i>
+                    </button>
+                    <button class="p-2 rounded-full hover:bg-ig-bg transition duration-200" title="Chat info">
+                        <i class="fas fa-info-circle text-ig-gray"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Messages Area -->
+        <div id="messagesArea" class="flex-1 overflow-y-auto bg-ig-bg p-4">
+            <!-- Welcome Screen -->
+            <div id="welcomeScreen" class="h-full flex items-center justify-center">
+                <div class="text-center">
+                    <div class="w-24 h-24 bg-gradient-to-r from-purple-600 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
+                        <i class="fas fa-comments text-white text-3xl"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-gray-900 mb-2">Welcome to Arun Chat</h2>
+                    <p class="text-ig-gray mb-6">Connect with friends and start meaningful conversations</p>
+                    <button onclick="focusSearch()" class="bg-ig-blue text-white px-6 py-2 rounded-full font-semibold hover:bg-ig-light-blue transition duration-200">
+                        Start Chatting
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Chat Messages Container -->
+            <div id="chatMessages" class="hidden space-y-4">
+                <!-- Dynamic messages will be loaded here -->
+            </div>
+        </div>
+        
+        <!-- Message Input -->
+        <div id="messageInput" class="p-4 bg-white border-t border-ig-border hidden">
+            <div class="flex items-center space-x-3">
+                <!-- Emoji Button -->
+                <button id="emojiBtn" class="p-2 rounded-full hover:bg-ig-bg transition duration-200" title="Emoji">
+                    <i class="fas fa-smile text-ig-gray text-lg"></i>
+                </button>
+                
+                <!-- Message Text Input -->
+                <div class="flex-1 relative">
+                    <input 
+                        type="text" 
+                        id="messageText"
+                        placeholder="Message..."
+                        class="w-full px-4 py-2 border border-ig-border rounded-full text-sm focus:outline-none focus:border-ig-blue pr-10"
+                    >
+                    <!-- Typing indicator -->
+                    <div id="typingIndicator" class="absolute -top-6 left-0 text-xs text-ig-gray hidden">
+                        <i class="fas fa-circle text-green-500 animate-pulse"></i> typing...
+                    </div>
+                </div>
+                
+                <!-- File Upload Button -->
+                <label for="fileInput" class="p-2 rounded-full hover:bg-ig-bg transition duration-200 cursor-pointer" title="Attach file">
+                    <i class="fas fa-paperclip text-ig-gray text-lg"></i>
+                    <input type="file" id="fileInput" class="hidden" accept="image/*,video/*,.pdf,.doc,.docx">
+                </label>
+                
+                <!-- Image Upload Button -->
+                <label for="imageInput" class="p-2 rounded-full hover:bg-ig-bg transition duration-200 cursor-pointer" title="Send photo">
+                    <i class="fas fa-image text-ig-gray text-lg"></i>
+                    <input type="file" id="imageInput" class="hidden" accept="image/*">
+                </label>
+                
+                <!-- Send Button -->
+                <button id="sendButton" onclick="sendMessage()" class="p-2 rounded-full hover:bg-ig-bg transition duration-200" title="Send message">
+                    <i class="fas fa-paper-plane text-ig-blue text-lg"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Friend Requests Modal -->
+    <div id="friendRequestsModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-lg max-w-md w-full max-h-96">
+                <!-- Modal Header -->
+                <div class="p-4 border-b border-ig-border flex items-center justify-between">
+                    <h3 class="font-semibold text-lg">Friend Requests</h3>
+                    <button onclick="closeFriendRequestsModal()" class="text-ig-gray hover:text-gray-800">
+                        <i class="fas fa-times text-lg"></i>
+                    </button>
+                </div>
+                
+                <!-- Modal Content -->
+                <div id="friendRequestsList" class="max-h-80 overflow-y-auto">
+                    <div class="p-8 text-center text-ig-gray">
+                        <i class="fas fa-user-friends text-4xl mb-3 opacity-50"></i>
+                        <p>No pending friend requests</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Group Modal -->
+    <div id="createGroupModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-lg max-w-md w-full">
+                <div class="p-4 border-b border-ig-border flex items-center justify-between">
+                    <h3 class="font-semibold text-lg">Create Group</h3>
+                    <button onclick="closeCreateGroupModal()" class="text-ig-gray hover:text-gray-800">
+                        <i class="fas fa-times text-lg"></i>
+                    </button>
+                </div>
+                
+                <div class="p-4">
+                    <input type="text" id="groupNameInput" placeholder="Group name..." class="w-full px-4 py-2 border border-ig-border rounded-lg text-sm focus:outline-none focus:border-ig-blue mb-4">
+                    
+                    <div class="flex justify-end space-x-2">
+                        <button onclick="closeCreateGroupModal()" class="px-4 py-2 text-ig-gray hover:text-gray-800">Cancel</button>
+                        <button onclick="createGroup()" class="px-4 py-2 bg-ig-blue text-white rounded-lg hover:bg-ig-light-blue">Create</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toastContainer" class="fixed top-4 right-4 z-50 space-y-2"></div>
+
+    <script>
+        class ChatApplication {
+            constructor() {
+                this.currentUser = null;
+                this.currentChatPartner = null;
+                this.searchTimeout = null;
+                this.isSearching = false;
+                this.friendRequestsCount = 0;
+                
+                this.init();
+            }
+
+            init() {
+                // Check authentication
+                if (!this.checkAuth()) return;
+                
+                this.setupEventListeners();
+                this.loadInitialData();
+                this.loadFriendRequests();
+            }
+
+            checkAuth() {
+                const token = localStorage.getItem('jwt-token');
+                const user = localStorage.getItem('user');
+                
+                if (!token || !user) {
+                    window.location.href = 'index.html';
+                    return false;
+                }
+                
+                this.currentUser = JSON.parse(user);
+                return true;
+            }
+
+            setupEventListeners() {
+                // Search functionality
+                const searchInput = document.getElementById('searchInput');
+                searchInput.addEventListener('input', (e) => this.handleSearch(e.target.value));
+                
+                // Message input
+                document.getElementById('messageText').addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        this.sendMessage();
+                    }
+                });
+                
+                // File uploads
+                document.getElementById('fileInput').addEventListener('change', (e) => this.handleFileUpload(e));
+                document.getElementById('imageInput').addEventListener('change', (e) => this.handleImageUpload(e));
+                
+                // Menu toggle
+                document.getElementById('menuBtn').addEventListener('click', () => {
+                    const dropdown = document.getElementById('menuDropdown');
+                    dropdown.classList.toggle('hidden');
+                });
+                
+                // Close menu when clicking outside
+                document.addEventListener('click', (e) => {
+                    if (!e.target.closest('#menuBtn')) {
+                        document.getElementById('menuDropdown').classList.add('hidden');
+                    }
+                });
+                
+                // Friend requests button
+                document.getElementById('friendRequestsBtn').addEventListener('click', () => {
+                    this.showFriendRequests();
+                });
+                
+                // Create group button
+                document.getElementById('createGroupBtn').addEventListener('click', () => {
+                    this.showCreateGroupModal();
+                });
+                
+                // Clear search
+                document.getElementById('clearSearch').addEventListener('click', () => {
+                    this.clearSearch();
+                });
+            }
+
+            loadInitialData() {
+                // Display current user info
+                document.getElementById('currentUserName').textContent = this.currentUser.username;
+                document.getElementById('currentUserEmail').textContent = this.currentUser.email;
+                
+                // Load existing conversations
+                this.loadConversations();
+            }
+
+            handleSearch(query) {
+                const clearBtn = document.getElementById('clearSearch');
+                
+                if (query.trim().length > 0) {
+                    clearBtn.classList.remove('hidden');
+                } else {
+                    clearBtn.classList.add('hidden');
+                }
+                
+                // Debounce search
+                clearTimeout(this.searchTimeout);
+                
+                if (query.trim().length < 2) {
+                    this.showFriendsSection();
+                    return;
+                }
+                
+                this.searchTimeout = setTimeout(() => {
+                    this.performSearch(query.trim());
+                }, 300);
+            }
+
+            async performSearch(query) {
+                try {
+                    this.isSearching = true;
+                    this.showSearchResults();
+                    
+                    const response = await fetch(`http://localhost:8080/api/chat/search-users?query=${encodeURIComponent(query)}`);
+                    const data = await response.json();
+                    
+                    this.displaySearchResults(data.users || []);
+                } catch (error) {
+                    console.error('Search failed:', error);
+                    this.showSearchError();
+                } finally {
+                    this.isSearching = false;
+                }
+            }
+
+            async displaySearchResults(users) {
+                const searchList = document.getElementById('searchList');
+                
+                if (users.length === 0) {
+                    searchList.innerHTML = `
+                        <div class="p-4 text-center text-ig-gray">
+                            <i class="fas fa-search text-2xl mb-2 opacity-50"></i>
+                            <p class="text-sm">No users found</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                // Filter out current user and get friendship status
+                const filteredUsers = users.filter(user => user.email !== this.currentUser.email);
+                
+                // Get friendship status for each user
+                const usersWithStatus = await Promise.all(
+                    filteredUsers.map(async user => {
+                        try {
+                            const statusResponse = await fetch(
+                                `http://localhost:8080/api/friends/status?userId=${this.currentUser.id}&otherUserId=${user.id}`
+                            );
+                            const statusData = await statusResponse.json();
+                            user.friendshipStatus = statusData.status;
+                        } catch (error) {
+                            user.friendshipStatus = 'NONE';
+                        }
+                        return user;
+                    })
+                );
+                
+                searchList.innerHTML = usersWithStatus
+                    .map(user => this.createUserListItem(user, true))
+                    .join('');
+            }
+
+            createUserListItem(user, showActionButton = false) {
+                const avatarLetter = user.username.charAt(0).toUpperCase();
+                
+                let actionButton = '';
+                if (showActionButton) {
+                    switch (user.friendshipStatus) {
+                        case 'ACCEPTED':
+                            actionButton = `<button onclick="chatApp.startChat('${user.email}', '${user.username}')" 
+                                class="text-green-600 text-sm font-semibold">Message</button>`;
+                            break;
+                        case 'PENDING':
+                            actionButton = `<span class="text-orange-500 text-sm font-semibold">Pending</span>`;
+                            break;
+                        case 'SENT':
+                            actionButton = `<span class="text-blue-500 text-sm font-semibold">Request Sent</span>`;
+                            break;
+                        default:
+                            actionButton = `<button onclick="chatApp.sendFriendRequest(${user.id}, '${user.username}')" 
+                                class="text-ig-blue text-sm font-semibold hover:text-ig-light-blue transition duration-200">Add Friend</button>`;
+                    }
+                }
+                
+                return `
+                    <div class="p-3 hover:bg-ig-bg cursor-pointer transition duration-200 flex items-center justify-between" 
+                         ${!showActionButton ? `onclick="chatApp.startChat('${user.email}', '${user.username}')"` : ''}>
+                        <div class="flex items-center space-x-3" ${showActionButton && user.friendshipStatus === 'ACCEPTED' ? '' : `onclick="chatApp.startChat('${user.email}', '${user.username}')"`}>
+                            <div class="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-semibold">
+                                ${avatarLetter}
+                            </div>
+                            <div class="flex-1">
+                                <h4 class="font-semibold text-sm">${user.username}</h4>
+                                <p class="text-ig-gray text-xs">${user.email}</p>
+                            </div>
+                        </div>
+                        ${actionButton}
+                    </div>
+                `;
+            }
+
+            showSearchResults() {
+                document.getElementById('searchResults').classList.remove('hidden');
+                document.getElementById('friendsSection').classList.add('hidden');
+            }
+
+            showFriendsSection() {
+                document.getElementById('searchResults').classList.add('hidden');
+                document.getElementById('friendsSection').classList.remove('hidden');
+            }
+
+            clearSearch() {
+                document.getElementById('searchInput').value = '';
+                document.getElementById('clearSearch').classList.add('hidden');
+                this.showFriendsSection();
+            }
+
+            async startChat(userEmail, username) {
+                this.currentChatPartner = { email: userEmail, username: username };
+                
+                // Hide welcome screen
+                document.getElementById('welcomeScreen').classList.add('hidden');
+                
+                // Show chat interface
+                document.getElementById('chatHeader').classList.remove('hidden');
+                document.getElementById('messageInput').classList.remove('hidden');
+                document.getElementById('chatMessages').classList.remove('hidden');
+                
+                // Update chat header
+                document.getElementById('chatUserName').textContent = username;
+                document.getElementById('chatUserAvatar').textContent = username.charAt(0).toUpperCase();
+                document.getElementById('chatUserStatus').classList.remove('hidden');
+                
+                // Load chat history
+                await this.loadChatHistory();
+                
+                // Add to conversations if not exists
+                this.addToConversations(userEmail, username);
+            }
+
+            async loadChatHistory() {
+                if (!this.currentChatPartner) return;
+                
+                try {
+                    const response = await fetch(
+                        `http://localhost:8080/api/chat/history?email1=${this.currentUser.email}&email2=${this.currentChatPartner.email}`
+                    );
+                    const data = await response.json();
+                    
+                    this.displayMessages(data.messages || []);
+                } catch (error) {
+                    console.error('Failed to load chat history:', error);
+                }
+            }
+
+            displayMessages(messages) {
+                const chatMessages = document.getElementById('chatMessages');
+                
+                if (messages.length === 0) {
+                    chatMessages.innerHTML = `
+                        <div class="text-center py-8">
+                            <div class="w-16 h-16 bg-ig-bg rounded-full flex items-center justify-center mx-auto mb-4">
+                                <i class="fas fa-comments text-ig-gray text-xl"></i>
+                            </div>
+                            <p class="text-ig-gray text-sm">No messages yet. Start the conversation!</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                chatMessages.innerHTML = messages.map(message => {
+                    const isFromCurrentUser = message.senderEmail === this.currentUser.email;
+                    const time = new Date(message.sentAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                    
+                    return `
+                        <div class="flex ${isFromCurrentUser ? 'justify-end' : 'justify-start'}">
+                            <div class="max-w-xs lg:max-w-md">
+                                <div class="px-4 py-2 rounded-2xl ${
+                                    isFromCurrentUser 
+                                        ? 'bg-ig-blue text-white' 
+                                        : 'bg-white border border-ig-border text-gray-900'
+                                }">
+                                    ${this.formatMessage(message.content)}
+                                </div>
+                                <p class="text-xs text-ig-gray mt-1 ${isFromCurrentUser ? 'text-right' : 'text-left'}">
+                                    ${time}
+                                </p>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+                
+                // Scroll to bottom
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+
+            formatMessage(content) {
+                // Make URLs clickable
+                const urlRegex = /(https?:\/\/[^\s]+)/g;
+                content = content.replace(urlRegex, '<a href="$1" target="_blank" class="underline hover:opacity-75">$1</a>');
+                
+                // Make email addresses clickable
+                const emailRegex = /([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/g;
+                content = content.replace(emailRegex, '<a href="mailto:$1" class="underline hover:opacity-75">$1</a>');
+                
+                return content;
+            }
+
+            async sendMessage() {
+                const messageText = document.getElementById('messageText');
+                const content = messageText.value.trim();
+                
+                if (!content || !this.currentChatPartner) return;
+                
+                try {
+                    const response = await fetch('http://localhost:8080/api/chat/send', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            senderEmail: this.currentUser.email,
+                            receiverEmail: this.currentChatPartner.email,
+                            content: content
+                        })
+                    });
+                    
+                    if (response.ok) {
+                        messageText.value = '';
+                        await this.loadChatHistory();
+                    } else {
+                        console.error('Failed to send message');
+                    }
+                } catch (error) {
+                    console.error('Error sending message:', error);
+                }
+            }
+
+            // File upload handling
+            handleFileUpload(event) {
+                const file = event.target.files[0];
+                if (file) {
+                    this.showToast('File upload feature coming soon!', 'info');
+                    // TODO: Implement file upload functionality
+                }
+            }
+
+            handleImageUpload(event) {
+                const file = event.target.files[0];
+                if (file) {
+                    this.showToast('Image upload feature coming soon!', 'info');
+                    // TODO: Implement image upload functionality
+                }
+            }
+
+            // Friend request functionality
+            async sendFriendRequest(userId, username) {
+                try {
+                    const response = await fetch('http://localhost:8080/api/friends/request', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            requesterId: this.currentUser.id,
+                            addresseeId: userId
+                        })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        this.showToast(`Friend request sent to ${username}!`, 'success');
+                        // Refresh search results to update button
+                        const currentQuery = document.getElementById('searchInput').value;
+                        if (currentQuery.length >= 2) {
+                            this.performSearch(currentQuery);
+                        }
+                    } else {
+                        this.showToast(data.message, 'error');
+                    }
+                } catch (error) {
+                    console.error('Friend request error:', error);
+                    this.showToast('Failed to send friend request', 'error');
+                }
+            }
+
+            async loadFriendRequests() {
+                try {
+                    const response = await fetch(`http://localhost:8080/api/friends/requests?userId=${this.currentUser.id}`);
+                    const data = await response.json();
+                    
+                    this.displayFriendRequests(data.requests || []);
+                    this.updateRequestBadge(data.total || 0);
+                } catch (error) {
+                    console.error('Failed to load friend requests:', error);
+                }
+            }
+
+            displayFriendRequests(requests) {
+                const container = document.getElementById('friendRequestsList');
+                
+                if (requests.length === 0) {
+                    container.innerHTML = `
+                        <div class="p-8 text-center text-ig-gray">
+                            <i class="fas fa-user-friends text-4xl mb-3 opacity-50"></i>
+                            <p>No pending friend requests</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                container.innerHTML = requests.map(request => `
+                    <div class="p-4 border-b border-ig-border">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-semibold">
+                                    ${request.requesterName.charAt(0).toUpperCase()}
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold">${request.requesterName}</h4>
+                                    <p class="text-ig-gray text-xs">${new Date(request.requestedAt).toLocaleDateString()}</p>
+                                </div>
+                            </div>
+                            <div class="flex space-x-2">
+                                <button 
+                                    onclick="chatApp.acceptFriendRequest(${request.id})"
+                                    class="px-3 py-1 bg-ig-blue text-white text-xs rounded-md hover:bg-ig-light-blue"
+                                >
+                                    Accept
+                                </button>
+                                <button 
+                                    onclick="chatApp.rejectFriendRequest(${request.id})"
+                                    class="px-3 py-1 bg-gray-300 text-gray-700 text-xs rounded-md hover:bg-gray-400"
+                                >
+                                    Decline
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            async acceptFriendRequest(friendshipId) {
+                try {
+                    const response = await fetch(`http://localhost:8080/api/friends/accept/${friendshipId}?userId=${this.currentUser.id}`, {
+                        method: 'POST'
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        this.showToast('Friend request accepted!', 'success');
+                        this.loadFriendRequests();
+                        this.loadConversations();
+                    } else {
+                        this.showToast(data.message, 'error');
+                    }
+                } catch (error) {
+                    console.error('Accept friend request error:', error);
+                    this.showToast('Failed to accept friend request', 'error');
+                }
+            }
+
+            async rejectFriendRequest(friendshipId) {
+                try {
+                    const response = await fetch(`http://localhost:8080/api/friends/reject/${friendshipId}?userId=${this.currentUser.id}`, {
+                        method: 'POST'
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        this.showToast('Friend request declined', 'info');
+                        this.loadFriendRequests();
+                    } else {
+                        this.showToast(data.message, 'error');
+                    }
+                } catch (error) {
+                    console.error('Reject friend request error:', error);
+                    this.showToast('Failed to decline friend request', 'error');
+                }
+            }
+
+            updateRequestBadge(count) {
+                const badge = document.getElementById('requestBadge');
+                if (count > 0) {
+                    badge.textContent = count;
+                    badge.classList.remove('hidden');
+                    badge.classList.add('flex');
+                } else {
+                    badge.classList.add('hidden');
+                }
+            }
+
+            showToast(message, type = 'info') {
+                const toast = document.createElement('div');
+                const colors = {
+                    success: 'bg-green-500',
+                    error: 'bg-red-500',
+                    info: 'bg-blue-500',
+                    warning: 'bg-orange-500'
+                };
+                
+                toast.className = `${colors[type]} text-white px-4 py-3 rounded-lg shadow-lg flex items-center justify-between max-w-sm`;
+                
+                toast.innerHTML = `
+                    <span class="flex-1">${message}</span>
+                    <button onclick="this.parentElement.remove()" class="ml-3 hover:opacity-75">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+                
+                document.getElementById('toastContainer').appendChild(toast);
+                
+                // Auto remove after 5 seconds
+                setTimeout(() => {
+                    if (toast.parentNode) {
+                        toast.parentNode.removeChild(toast);
+                    }
+                }, 5000);
+            }
+
+            async loadConversations() {
+                try {
+                    // Load friends list instead of just chat contacts
+                    const response = await fetch(`http://localhost:8080/api/friends/list?userId=${this.currentUser.id}`);
+                    const data = await response.json();
+                    
+                    if (data.friends && data.friends.length > 0) {
+                        this.displayConversations(data.friends);
+                    } else {
+                        // Fallback to chat contacts if no friends yet
+                        const contactsResponse = await fetch(`http://localhost:8080/api/chat/contacts?email=${this.currentUser.email}`);
+                        const contactsData = await contactsResponse.json();
+                        
+                        if (contactsData.contacts && contactsData.contacts.length > 0) {
+                            this.displayConversations(contactsData.contacts);
+                        }
+                    }
+                } catch (error) {
+                    console.error('Failed to load conversations:', error);
+                }
+            }
+
+            displayConversations(contacts) {
+                const friendsList = document.getElementById('friendsList');
+                friendsList.innerHTML = contacts.map(contact => 
+                    this.createUserListItem(contact)
+                ).join('');
+            }
+
+            addToConversations(email, username) {
+                const friendsList = document.getElementById('friendsList');
+                const existingConversations = friendsList.innerHTML;
+                
+                // Check if conversation already exists
+                if (!existingConversations.includes(email)) {
+                    if (friendsList.children.length === 1 && friendsList.textContent.includes('Search for people')) {
+                        friendsList.innerHTML = '';
+                    }
+                    
+                    const newConversation = this.createUserListItem({ email, username });
+                    friendsList.insertAdjacentHTML('afterbegin', newConversation);
+                }
+            }
+
+            showFriendRequests() {
+                this.loadFriendRequests();
+                document.getElementById('friendRequestsModal').classList.remove('hidden');
+            }
+
+            showCreateGroupModal() {
+                document.getElementById('createGroupModal').classList.remove('hidden');
+            }
+
+            async logout() {
+                localStorage.removeItem('jwt-token');
+                localStorage.removeItem('user');
+                window.location.href = 'index.html';
+            }
+        }
+
+        // Global functions
+        function closeFriendRequestsModal() {
+            document.getElementById('friendRequestsModal').classList.add('hidden');
+        }
+
+        function closeCreateGroupModal() {
+            document.getElementById('createGroupModal').classList.add('hidden');
+            document.getElementById('groupNameInput').value = '';
+        }
+
+        function createGroup() {
+            const groupName = document.getElementById('groupNameInput').value.trim();
+            if (groupName) {
+                chatApp.showToast('Group functionality coming soon!', 'info');
+                closeCreateGroupModal();
+            } else {
+                chatApp.showToast('Please enter a group name', 'error');
+            }
+        }
+
+        function focusSearch() {
+            document.getElementById('searchInput').focus();
+        }
+
+        function showProfile() {
+            chatApp.showToast('Profile feature coming soon!', 'info');
+            document.getElementById('menuDropdown').classList.add('hidden');
+        }
+
+        function showSettings() {
+            chatApp.showToast('Settings feature coming soon!', 'info');
+            document.getElementById('menuDropdown').classList.add('hidden');
+        }
+
+        function logout() {
+            chatApp.logout();
+        }
+
+        function sendMessage() {
+            chatApp.sendMessage();
+        }
+
+        // Initialize app
+        let chatApp;
+        document.addEventListener('DOMContentLoaded', () => {
+            chatApp = new ChatApplication();
+        });
+    </script>
+</body>
+</html>

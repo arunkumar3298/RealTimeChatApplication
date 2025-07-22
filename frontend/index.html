@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arun Chat - Connect & Share</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'ig-blue': '#0095f6',
+                        'ig-light-blue': '#4db5f7',
+                        'ig-gray': '#8e8e8e',
+                        'ig-border': '#dbdbdb',
+                        'ig-bg': '#fafafa'
+                    },
+                    fontFamily: {
+                        'instagram': ['-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-ig-bg font-instagram min-h-screen flex items-center justify-center">
+    <!-- Main Container -->
+    <div class="flex w-full max-w-4xl mx-auto">
+        <!-- Left Side - App Preview -->
+        <div class="hidden lg:flex lg:w-1/2 items-center justify-center p-8">
+            <div class="relative">
+                <!-- Phone Mockup -->
+                <div class="w-80 h-96 bg-white rounded-3xl border-8 border-black shadow-2xl relative overflow-hidden">
+                    <!-- Status Bar -->
+                    <div class="h-6 bg-black flex items-center justify-center">
+                        <div class="w-16 h-1 bg-white rounded-full"></div>
+                    </div>
+                    <!-- App Preview -->
+                    <div class="p-4 h-full bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400">
+                        <div class="text-white text-center mt-8">
+                            <i class="fas fa-comments text-6xl mb-4"></i>
+                            <h2 class="text-2xl font-bold mb-2">Arun Chat</h2>
+                            <p class="text-sm opacity-90">Connect with friends instantly</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- Floating Elements -->
+                <div class="absolute -top-4 -right-4 w-16 h-16 bg-pink-500 rounded-full opacity-20 animate-pulse"></div>
+                <div class="absolute -bottom-4 -left-4 w-12 h-12 bg-blue-500 rounded-full opacity-30 animate-bounce"></div>
+            </div>
+        </div>
+
+        <!-- Right Side - Login Form -->
+        <div class="w-full lg:w-1/2 flex flex-col items-center justify-center p-8">
+            <!-- Logo Section -->
+            <div class="text-center mb-8">
+                <div class="w-16 h-16 bg-gradient-to-r from-purple-600 to-pink-500 rounded-xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                    <i class="fas fa-comments text-white text-2xl"></i>
+                </div>
+                <h1 class="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-500 bg-clip-text text-transparent">
+                    Arun Chat
+                </h1>
+                <p class="text-ig-gray text-sm mt-2">Connect, share, and chat with friends</p>
+            </div>
+
+            <!-- Login Card -->
+            <div class="w-full max-w-sm">
+                <div class="bg-white border border-ig-border rounded-lg p-8 shadow-sm">
+                    <form id="loginForm" class="space-y-4">
+                        <!-- Username Input -->
+                        <div>
+                            <input 
+                                type="text" 
+                                id="username"
+                                placeholder="Username or email"
+                                class="w-full px-3 py-2 border border-ig-border rounded-md text-sm focus:outline-none focus:border-ig-blue focus:ring-1 focus:ring-ig-blue bg-ig-bg"
+                                required
+                            >
+                        </div>
+
+                        <!-- Password Input -->
+                        <div class="relative">
+                            <input 
+                                type="password" 
+                                id="password"
+                                placeholder="Password"
+                                class="w-full px-3 py-2 border border-ig-border rounded-md text-sm focus:outline-none focus:border-ig-blue focus:ring-1 focus:ring-ig-blue bg-ig-bg pr-12"
+                                required
+                            >
+                            <button 
+                                type="button" 
+                                id="togglePassword"
+                                class="absolute right-3 top-1/2 transform -translate-y-1/2 text-ig-gray hover:text-gray-800 text-sm font-semibold"
+                            >
+                                Show
+                            </button>
+                        </div>
+
+                        <!-- Login Button -->
+                        <button 
+                            type="submit" 
+                            id="loginButton"
+                            class="w-full bg-ig-blue text-white py-2 rounded-md text-sm font-semibold hover:bg-ig-light-blue transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            <span id="loginButtonText">Log in</span>
+                            <i id="loginSpinner" class="fas fa-spinner fa-spin ml-2 hidden"></i>
+                        </button>
+
+                        <!-- Message Container -->
+                        <div id="messageContainer" class="hidden"></div>
+                    </form>
+
+                    <!-- Divider -->
+                    <div class="flex items-center my-6">
+                        <div class="flex-1 border-t border-ig-border"></div>
+                        <span class="px-4 text-ig-gray text-sm font-semibold">OR</span>
+                        <div class="flex-1 border-t border-ig-border"></div>
+                    </div>
+
+                    <!-- Forgot Password -->
+                    <div class="text-center">
+                        <a href="forgot-password.html" class="text-ig-blue text-sm hover:underline">
+                            Forgotten your password?
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Sign Up Link -->
+                <div class="bg-white border border-ig-border rounded-lg p-6 mt-4 text-center shadow-sm">
+                    <p class="text-sm">
+                        Don't have an account? 
+                        <a href="register.html" class="text-ig-blue font-semibold hover:underline">
+                            Sign up
+                        </a>
+                    </p>
+                </div>
+
+                <!-- Footer -->
+                <div class="text-center mt-8">
+                    <p class="text-ig-gray text-xs">
+                        © 2025 Arun Chat. Built with Spring Boot & Modern Frontend.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+    class LoginHandler {
+        constructor() {
+            this.form = document.getElementById('loginForm');
+            this.togglePasswordBtn = document.getElementById('togglePassword');
+            this.passwordInput = document.getElementById('password');
+            this.loginButton = document.getElementById('loginButton');
+            this.messageContainer = document.getElementById('messageContainer');
+            
+            this.init();
+        }
+
+        init() {
+            this.bindEvents();
+            // FIXED - Check auth with proper validation
+            this.checkExistingAuth();
+        }
+
+        bindEvents() {
+            this.form.addEventListener('submit', (e) => this.handleLogin(e));
+            this.togglePasswordBtn.addEventListener('click', () => this.togglePassword());
+            
+            // Enter key support
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && !this.loginButton.disabled) {
+                    this.handleLogin(e);
+                }
+            });
+        }
+
+        // FIXED - Proper validation of existing auth
+        checkExistingAuth() {
+            const token = localStorage.getItem('jwt-token');
+            const userStr = localStorage.getItem('user');
+            
+            // Debug logging (remove this later)
+            console.log('Checking auth:', { token: !!token, user: !!userStr });
+            
+            // Check if both exist and are valid
+            if (token && userStr) {
+                try {
+                    const user = JSON.parse(userStr);
+                    
+                    // Validate that user object has required properties
+                    if (user && user.username && user.email && token.length > 10) {
+                        console.log('Valid auth found, redirecting...');
+                        window.location.href = 'chat.html';
+                        return;
+                    }
+                } catch (e) {
+                    console.log('Invalid user data, clearing...');
+                }
+            }
+            
+            // If we reach here, clear any invalid data
+            this.clearInvalidAuth();
+        }
+
+        // ADDED - Clear invalid authentication data
+        clearInvalidAuth() {
+            const token = localStorage.getItem('jwt-token');
+            const userStr = localStorage.getItem('user');
+            
+            if (token || userStr) {
+                console.log('Clearing invalid auth data...');
+                localStorage.removeItem('jwt-token');
+                localStorage.removeItem('user');
+            }
+        }
+
+        togglePassword() {
+            const isPassword = this.passwordInput.type === 'password';
+            this.passwordInput.type = isPassword ? 'text' : 'password';
+            this.togglePasswordBtn.textContent = isPassword ? 'Hide' : 'Show';
+        }
+
+        async handleLogin(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+
+            if (!this.validateForm(username, password)) return;
+
+            try {
+                this.setLoadingState(true);
+
+                const response = await fetch('http://localhost:8080/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    // FIXED - Only store if we have valid data
+                    if (data.token && data.user) {
+                        localStorage.setItem('jwt-token', data.token);
+                        localStorage.setItem('user', JSON.stringify(data.user));
+                        
+                        this.showMessage('Login successful! Welcome back 🎉', 'success');
+                        
+                        setTimeout(() => {
+                            window.location.href = 'chat.html';
+                        }, 1500);
+                    } else {
+                        this.showMessage('Login response invalid. Please try again.', 'error');
+                    }
+                } else {
+                    this.showMessage(data.message || 'Login failed. Please try again.', 'error');
+                }
+
+            } catch (error) {
+                console.error('Login error:', error);
+                if (error.message && error.message.includes('fetch')) {
+                    this.showMessage('Connection error. Please ensure your backend is running.', 'error');
+                } else {
+                    this.showMessage('Connection error. Please check your internet connection.', 'error');
+                }
+            } finally {
+                this.setLoadingState(false);
+            }
+        }
+
+        validateForm(username, password) {
+            if (!username) {
+                this.showMessage('Please enter your username or email', 'error');
+                document.getElementById('username').focus();
+                return false;
+            }
+
+            if (!password) {
+                this.showMessage('Please enter your password', 'error');
+                document.getElementById('password').focus();
+                return false;
+            }
+
+            return true;
+        }
+
+        setLoadingState(loading) {
+            this.loginButton.disabled = loading;
+            const buttonText = document.getElementById('loginButtonText');
+            const spinner = document.getElementById('loginSpinner');
+
+            if (loading) {
+                buttonText.textContent = 'Logging in...';
+                spinner.classList.remove('hidden');
+                this.loginButton.classList.add('opacity-75');
+            } else {
+                buttonText.textContent = 'Log in';
+                spinner.classList.add('hidden');
+                this.loginButton.classList.remove('opacity-75');
+            }
+        }
+
+        showMessage(message, type) {
+            const alertClasses = {
+                success: 'bg-green-50 border border-green-200 text-green-800',
+                error: 'bg-red-50 border border-red-200 text-red-800'
+            };
+
+            this.messageContainer.innerHTML = `
+                <div class="rounded-md p-3 ${alertClasses[type]} text-sm">
+                    ${message}
+                </div>
+            `;
+            
+            this.messageContainer.classList.remove('hidden');
+            
+            if (type === 'success') {
+                setTimeout(() => {
+                    this.messageContainer.classList.add('hidden');
+                }, 3000);
+            }
+        }
+    }
+
+    // Initialize when DOM is loaded
+    document.addEventListener('DOMContentLoaded', () => {
+        new LoginHandler();
+    });
+</script>
+
+</body>
+</html>
